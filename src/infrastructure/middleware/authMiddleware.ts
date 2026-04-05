@@ -30,6 +30,9 @@ export const authMiddleware = (req: Request, _res: Response, next: NextFunction)
     }
 
     const decoded = verifyAccessToken(token);
+    if (!decoded) {
+      throw new UnauthorizedError('Invalid or expired token');
+    }
     req.user = decoded;
     next();
   } catch (error) {

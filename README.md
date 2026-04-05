@@ -318,7 +318,7 @@ Install the [REST Client](https://marketplace.visualstudio.com/items?itemName=hu
 
 ```bash
 # Clone and install
-git clone <repo-url>
+git clone https://github.com/mrunmayeeph/finance-dashboard-backend.git
 cd finance-backend
 npm install
 
@@ -377,7 +377,7 @@ The architecture is designed to scale incrementally — the repository pattern i
 | Decision | Reasoning |
 |---|---|
 | Access token only (no refresh token) | Keeps focus on the finance module, not auth infrastructure |
-| Hardcoded roles (`viewer`, `analyst`, `admin`) | Assignment scope does not require dynamic permission management |
+| Hardcoded roles (`viewer`, `analyst`, `admin`) | 
 | Soft delete on transactions | Preserves data integrity and audit history |
 | Dashboard aggregation at query time | Simpler for this scope; Redis caching or precomputation recommended at scale |
 | `userId` stamped on transaction at creation | Ties financial records to the creating user without a separate ownership model |

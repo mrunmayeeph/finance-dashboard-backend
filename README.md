@@ -282,6 +282,27 @@ CORS_ORIGIN=http://localhost:3000
 | Viewer | viewer@example.com | Admin@123 |
 
 ---
+ 
+## API Documentation
+ 
+Swagger UI is available at:
+ 
+```
+http://localhost:3000/api-docs
+```
+ 
+Raw OpenAPI JSON spec:
+ 
+```
+http://localhost:3000/api-docs.json
+```
+ 
+**To authenticate in Swagger UI:**
+1. Call `POST /auth/login` and copy the `accessToken` from the response
+2. Click the **Authorize** button at the top right
+3. Paste the token — Swagger will include it on all subsequent requests
+ 
+---
 
 ## Assumptions and Tradeoffs
 

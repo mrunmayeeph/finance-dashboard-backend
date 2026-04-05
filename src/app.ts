@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import { config } from './infrastructure/config';
+import { swaggerSpec } from './infrastructure/config/swagger';
 import { errorMiddleware, notFoundMiddleware } from './infrastructure/middleware/errorMiddleware';
 import { createPermissionMiddleware } from './infrastructure/middleware/rbacMiddleware';
 
@@ -102,12 +104,25 @@ export const createApp = (): Application => {
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
   });
-
+ 
+  // API Documentation
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Finance Dashboard API',
+    swaggerOptions: {
+      persistAuthorization: true, // keeps the token across page refreshes
+    },
+  }));
+  app.get('/api-docs.json', (_req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+ 
   app.use('/api/v1/auth', createAuthRoutes(authController));
   app.use('/api/v1/users', createUserRoutes(userController, requirePermission));
   app.use('/api/v1/transactions', createTransactionRoutes(transactionController, requirePermission));
   app.use('/api/v1/dashboard', createDashboardRoutes(dashboardController, requirePermission));
 
+  
   // Error Handling
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);

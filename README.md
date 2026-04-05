@@ -2,7 +2,6 @@
 
 A backend API for a multi-role finance dashboard. Built with Node.js, TypeScript, Express, and MongoDB, following Clean Architecture principles. This is a focused, assignment-scoped implementation — no unnecessary features, no over-engineering.
 
-Transactions represent financial records in this system. The terms are used interchangeably throughout this codebase.
 
 ---
 

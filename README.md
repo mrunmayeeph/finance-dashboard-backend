@@ -1,8 +1,19 @@
 # Finance Dashboard Backend
 
-A backend API for a multi-role finance dashboard. Built with Node.js, TypeScript, Express, and MongoDB, following Clean Architecture principles. 
+A backend API for a multi-role finance dashboard. Built with Node.js, TypeScript, Express, and MongoDB, following Clean Architecture principles. This is a focused, assignment-scoped implementation — no unnecessary features, no over-engineering.
 
 Transactions represent financial records in this system. The terms are used interchangeably throughout this codebase.
+
+---
+
+## Live Deployment
+
+| | URL |
+|---|---|
+| **API Base** | https://finance-dashboard-backend-y7pn.onrender.com/api/v1 |
+| **Swagger UI** | https://finance-dashboard-backend-y7pn.onrender.com/api-docs |
+| **Health Check** | https://finance-dashboard-backend-y7pn.onrender.com/health |
+
 
 ---
 
@@ -16,6 +27,7 @@ Transactions represent financial records in this system. The terms are used inte
 | Zod | Schema validation |
 | JWT (jsonwebtoken) | Token-based authentication |
 | bcryptjs | Password hashing |
+| Swagger UI | API documentation |
 
 ---
 
@@ -45,6 +57,37 @@ This project follows Clean Architecture with strict inward dependency flow:
 - Controllers are thin — they extract input, call one use case, return the result
 - The domain layer has zero framework dependencies
 - Dependency injection is wired manually in `app.ts`
+
+---
+
+## Request Flow
+
+Every incoming request passes through these layers in order:
+
+```
+HTTP Request
+     │
+     ▼
+Auth Middleware        → verifies JWT, attaches user to req
+     │
+     ▼
+RBAC Middleware        → checks role permission via PolicyService
+     │                  (returns 403 if role is not allowed)
+     ▼
+Validation Middleware  → parses request against Zod schema
+     │                  (returns 422 if input is invalid)
+     ▼
+Controller             → extracts input, calls one use case
+     │
+     ▼
+Use Case               → executes business logic
+     │
+     ▼
+Repository             → reads/writes MongoDB
+     │
+     ▼
+HTTP Response
+```
 
 ---
 
@@ -82,7 +125,8 @@ finance-backend/
 │   │
 │   ├── infrastructure/
 │   │   ├── config/
-│   │   │   └── index.ts
+│   │   │   ├── index.ts
+│   │   │   └── swagger.ts           # OpenAPI 3.0 spec
 │   │   ├── database/mongoose/
 │   │   │   ├── models/
 │   │   │   │   ├── UserModel.ts
@@ -236,7 +280,35 @@ Indexes are defined on the `Transaction` collection to optimize filtering and ag
 
 ---
 
-## Setup
+## How to Test
+
+### Option 1 — Swagger UI (recommended)
+
+1. Open https://finance-dashboard-backend-y7pn.onrender.com/api-docs
+2. Call `POST /auth/login` with one of the credentials below
+3. Copy the `accessToken` from the response
+4. Click **Authorize** (top right) and paste the token
+5. All endpoints are now unlocked based on the role you logged in with
+
+### Option 2 — REST Client (VS Code)
+
+Install the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension, open `test.rest`, and:
+
+1. Run requests `#2`, `#3`, `#4` (logins) — paste the returned tokens into the `@adminToken`, `@analystToken`, `@viewerToken` variables at the top of the file
+2. Run `#13` (create transaction) — paste the returned `id` into `@transactionId`
+3. Run any remaining request in order
+
+### Default credentials
+
+| Role | Email | Password | Can do |
+|---|---|---|---|
+| Admin | admin@example.com | Admin@123 | Everything |
+| Analyst | analyst@example.com | Admin@123 | Read transactions + dashboard |
+| Viewer | viewer@example.com | Admin@123 | Read transactions only |
+
+---
+
+## Setup (Local)
 
 ### Prerequisites
 - Node.js 18+
@@ -273,35 +345,31 @@ BCRYPT_SALT_ROUNDS=12
 CORS_ORIGIN=http://localhost:3000
 ```
 
-### Default Users (after seed)
-
-| Role | Email | Password |
-|---|---|---|
-| Admin | admin@example.com | Admin@123 |
-| Analyst | analyst@example.com | Admin@123 |
-| Viewer | viewer@example.com | Admin@123 |
-
 ---
- 
+
 ## API Documentation
- 
-Swagger UI is available at:
- 
+
+Swagger UI (local):
 ```
 http://localhost:3000/api-docs
 ```
- 
+
+Swagger UI (live):
+```
+https://finance-dashboard-backend-y7pn.onrender.com/api-docs
+```
+
 Raw OpenAPI JSON spec:
- 
 ```
-http://localhost:3000/api-docs.json
+https://finance-dashboard-backend-y7pn.onrender.com/api-docs.json
 ```
- 
-**To authenticate in Swagger UI:**
-1. Call `POST /auth/login` and copy the `accessToken` from the response
-2. Click the **Authorize** button at the top right
-3. Paste the token — Swagger will include it on all subsequent requests
- 
+
+---
+
+## Scalability
+
+The architecture is designed to scale incrementally — the repository pattern isolates data access so storage can be swapped, aggregation pipelines can be cached via Redis, and each use case is independently deployable as a serverless function if needed.
+
 ---
 
 ## Assumptions and Tradeoffs
@@ -313,3 +381,15 @@ http://localhost:3000/api-docs.json
 | Soft delete on transactions | Preserves data integrity and audit history |
 | Dashboard aggregation at query time | Simpler for this scope; Redis caching or precomputation recommended at scale |
 | `userId` stamped on transaction at creation | Ties financial records to the creating user without a separate ownership model |
+| Rate limiting not included | Can be added via `express-rate-limit` as a middleware drop-in |
+| Tests not included | Use cases are isolated and constructor-injected, making them straightforward to unit test |
+
+---
+
+<div align="center">
+
+Built with Node.js · TypeScript · Express · MongoDB · Clean Architecture
+
+[Live API](https://finance-dashboard-backend-y7pn.onrender.com/health) · [Swagger Docs](https://finance-dashboard-backend-y7pn.onrender.com/api-docs) · [GitHub](https://github.com)
+
+</div>

@@ -29,6 +29,10 @@ Include it in the \`Authorization\` header as: \`Bearer <token>\`
         url: 'http://localhost:3000/api/v1',
         description: 'Development server',
       },
+      {
+        url: 'https://finance-dashboard-backend-y7pn.onrender.com/api/v1',
+        description: 'Production server',
+      }
     ],
     components: {
       securitySchemes: {

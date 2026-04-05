@@ -101,6 +101,31 @@ export const createApp = (): Application => {
   const dashboardController = new DashboardController(getDashboardSummaryUseCase);
 
   // Routes
+  app.get('/', (req, res) => {
+    res.json({
+      success: true,
+      service: 'Finance Dashboard Backend',
+      version: '1.0.0',
+      status: 'running',
+      docs: '/api-docs',
+      base: '/api/v1'
+    });
+  });
+
+  app.get('/api/v1', (req, res) => {
+    res.json({
+      success: true,
+      message: 'Finance Dashboard API v1',
+      availableRoutes: {
+        auth: '/api/v1/auth',
+        users: '/api/v1/users',
+        transactions: '/api/v1/transactions',
+        dashboard: '/api/v1/dashboard',
+      },
+      documentation: '/api-docs'
+    });
+  });
+
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
   });

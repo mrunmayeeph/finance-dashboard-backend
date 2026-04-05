@@ -375,13 +375,15 @@ The architecture is designed to scale incrementally — the repository pattern i
 
 | Decision | Reasoning |
 |---|---|
-| Access token only (no refresh token) | Keeps focus on the finance module, not auth infrastructure |
-| Hardcoded roles (`viewer`, `analyst`, `admin`) | 
-| Soft delete on transactions | Preserves data integrity and audit history |
-| Dashboard aggregation at query time | Simpler for this scope; Redis caching or precomputation recommended at scale |
-| `userId` stamped on transaction at creation | Ties financial records to the creating user without a separate ownership model |
-| Rate limiting not included | Can be added via `express-rate-limit` as a middleware drop-in |
-| Tests not included | Use cases are isolated and constructor-injected, making them straightforward to unit test |
+| Access token only (no refresh token) | Refresh token rotation requires database storage, rotation logic, and a revocation mechanism — complexity that belongs in a dedicated auth service. A 15-minute access token is sufficient for this scope. |
+| Hardcoded roles (`viewer`, `analyst`, `admin`) | The assignment defines three roles with fixed boundaries. A dynamic permissions collection adds flexibility at the cost of complexity. Hardcoding keeps the access control logic readable and the codebase simpler. |
+| Soft delete on transactions | Financial records should never be permanently destroyed. Setting `deletedAt` preserves audit history, allows recovery from accidental deletions, and is standard practice in financial systems. |
+| Dashboard aggregation at query time | Aggregation pipelines run on request rather than being precomputed. Simpler for this scope. In production, the result would be cached in Redis with a short TTL or precomputed on a schedule to avoid recomputing on every request. |
+| `userId` stamped on transaction at creation | Ties each financial record to the user who created it without needing a separate ownership model or join table. Simple and sufficient for this use case. |
+| MongoDB over a relational database | Financial records here are self-contained documents with no complex relational queries between entities. MongoDB's document model is a natural fit and avoids unnecessary schema rigidity. |
+| Manual dependency injection over a DI container | All dependencies are wired explicitly in `app.ts`. This keeps the injection transparent and removes the need for decorators or a third-party container library, which would add complexity without meaningful benefit at this scale. |
+| Rate limiting not included | Out of scope for this assignment. Can be added as a single middleware via `express-rate-limit` — no architectural changes required. |
+| Tests not included | Use cases are constructor-injected, have no framework dependencies, and follow a single `execute()` contract — making them straightforward to unit test in isolation. Excluded to keep the submission focused on architecture and finance logic. |
 
 ---
 

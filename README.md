@@ -382,8 +382,8 @@ The architecture is designed to scale incrementally — the repository pattern i
 | `userId` stamped on transaction at creation | Ties each financial record to the user who created it without needing a separate ownership model or join table. Simple and sufficient for this use case. |
 | MongoDB over a relational database | Financial records here are self-contained documents with no complex relational queries between entities. MongoDB's document model is a natural fit and avoids unnecessary schema rigidity. |
 | Manual dependency injection over a DI container | All dependencies are wired explicitly in `app.ts`. This keeps the injection transparent and removes the need for decorators or a third-party container library, which would add complexity without meaningful benefit at this scale. |
-| Rate limiting not included | Out of scope for this assignment. Can be added as a single middleware via `express-rate-limit` — no architectural changes required. |
-| Tests not included | Use cases are constructor-injected, have no framework dependencies, and follow a single `execute()` contract — making them straightforward to unit test in isolation. Excluded to keep the submission focused on architecture and finance logic. |
+| Rate limiting not included | Can be added as a single middleware via `express-rate-limit` — no architectural changes required. |
+| Tests not included | Use cases are constructor-injected, have no framework dependencies, and follow a single `execute()` contract — making them straightforward to unit test in isolation. |
 
 ---
 
